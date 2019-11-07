@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 
 namespace LogAn.UnitTests
@@ -5,6 +6,14 @@ namespace LogAn.UnitTests
     [TestFixture]
     public class LogAnalyzerTests
     {
+        private LogAnalyzer m_analyzer = null;
+
+        [SetUp]
+        public void Setup()
+        {
+            m_analyzer = new LogAnalyzer();
+        }
+
         [Test]
         public void IsValidFileName_BadExtension_ReturnsFalse()
         {
@@ -56,6 +65,45 @@ namespace LogAn.UnitTests
             bool result = analyzer.IsValidLogFileName(file);
 
             Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void IsValidLogFileName_ValidFileLowercased_ReturnsTrue()
+        {
+            bool result = m_analyzer.IsValidLogFileName("whatever.slf");
+
+            Assert.IsTrue(result, "filename should be valid!");
+        }
+
+        [Test]
+        public void IsValidFileName_ValidFileUppercased_ReturnsTrue()
+        {
+            bool result = m_analyzer.IsValidLogFileName("whatever.SLF");
+
+            Assert.IsTrue(result, "filename should be valid!");
+        }
+
+        [Test]
+        public void IsValidLogFileName_EmptyFileName_Throws()
+        {
+            LogAnalyzer la = MakeAnalyzer();
+
+            var ex = Assert.Catch<Exception>(() => la.IsValidLogFileName(""));
+
+            StringAssert.Contains("filename has to be provided", ex.Message);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            // the line below is included to show an anti pattern.
+            // This isn't really needed. Don't do it in real life.
+            m_analyzer = null;
+        }
+
+        private LogAnalyzer MakeAnalyzer()
+        {
+            return new LogAnalyzer();
         }
     }
 }
